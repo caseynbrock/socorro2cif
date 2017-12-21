@@ -1,4 +1,5 @@
 #!/bin/env python
+from __future__ import print_function
 import numpy as np
 import os
 
@@ -13,6 +14,11 @@ def main():
     with open('crystal') as fin:
         crystal_text_0 = fin.readlines()
     crystal_0 = Crystal(crystal_text_0)
+    print('Lattice vector scale: ', crystal_0.scale)
+    print('Lattice vectors (unscaled): ', crystal_0.avec, crystal_0.bvec, crystal_0.cvec)
+    print('Lattice vector lengths (scaled): ', crystal_0.a, crystal_0.b, crystal_0.c)
+    print('Lattice vector angles: ', crystal_0.alpha, crystal_0.beta, crystal_0.gamma)
+    print('Number of atoms: ', crystal_0.num_atoms)
     crystal_0.write_cif('crystal_0.cif')
         
     # convert single new_crystal file to multiple cifs
@@ -35,7 +41,7 @@ def split_new_crystal():
         new_crystal_text = fin.readlines()
     num_lines = get_num_lines(new_crystal_text)
     num_blocks = len(new_crystal_text)/num_lines
-    print num_lines, num_blocks
+    print('Number of crystal blocks in new_crystal: ', num_blocks)
     new_crystal_list = []
     for i in range(num_blocks):
         start_line = i*num_lines 
@@ -78,7 +84,6 @@ class Crystal(object):
         avec = [float(x) for x in self.crystal_text[2].split()]
         bvec = [float(x) for x in self.crystal_text[3].split()]
         cvec = [float(x) for x in self.crystal_text[4].split()]
-        print scale, avec, bvec, cvec
         return scale, avec, bvec, cvec
     
     def calc_abc(self):
@@ -89,7 +94,6 @@ class Crystal(object):
         a = self.scale * np.sqrt(av[0]**2 + av[1]**2 + av[2]**2) 
         b = self.scale * np.sqrt(bv[0]**2 + bv[1]**2 + bv[2]**2) 
         c = self.scale * np.sqrt(cv[0]**2 + cv[1]**2 + cv[2]**2) 
-        print a,b,c
         return a, b, c
     
     def calc_angles(self):
@@ -97,13 +101,11 @@ class Crystal(object):
         alpha = np.arccos(self.scale**2 * np.dot(self.bvec, self.cvec)/self.b/self.c) * 180./np.pi
         beta = np.arccos(self.scale**2 * np.dot(self.cvec, self.avec)/self.c/self.a) * 180./np.pi
         gamma = np.arccos(self.scale**2 * np.dot(self.avec, self.bvec)/self.a/self.b) * 180./np.pi
-        print alpha, beta, gamma
         return alpha, beta, gamma
     
     def get_atom_positions(self):
         ''' number of atoms on 7th line. Remaining lines are atoms '''
         N = int(self.crystal_text[6])
-        print N
         atoms = []
         for i in range(N):
             atom_label = [self.crystal_text[i+7].split()[0]] # same as atom type for now
