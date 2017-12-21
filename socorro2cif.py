@@ -3,16 +3,15 @@ import numpy as np
 
 
 def main():
-    # read crystal file
+    # convert crystal file to cif
     with open('crystal') as fin:
         crystal_text_0 = fin.readlines()
     crystal_0 = Crystal(crystal_text_0)
-
-    ##write cif file
-    #with open('newfile', 'w') as fout:
-    #    write_cif_header(fout, a, b, c, alpha, beta, gamma)
-    #    write_atom_positions(fout, atoms)
-
+    crystal_0.write_cif('crystal_0.cif')
+        
+    # # convert new_crystal file to multiple cifs
+    # new_crystal_split = split_new_crystal(new_crystal_text)
+    
 
 class Crystal(object):
     """
@@ -33,7 +32,7 @@ class Crystal(object):
         self.scale, self.avec, self.bvec, self.cvec = self.get_scale_and_lattice_vectors()
         self.a, self.b, self.c = self.calc_abc()
         self.alpha, self.beta, self.gamma = self.calc_angles()
-        self.atoms = self.get_atom_positions()
+        self.num_atoms, self.atoms = self.get_atom_positions()
             
     def get_scale_and_lattice_vectors(self):
         """ scale is on 2nd line, vectors are on lines 3,4,5 """
@@ -71,30 +70,38 @@ class Crystal(object):
         for i in range(N):
             atom_label = [self.crystal_text[i+7].split()[0]] # same as atom type for now
             atoms.append('  '.join(atom_label + self.crystal_text[i+7].split()))
-        return atoms
+        return N, atoms
     
-    #def write_cif_header(file_handle, a, b, c, alpha, beta, gamma):
-    #    header = ('data_global \n'
-    #              '_audit_creation_method \'socorro2cif\' \n'
-    #              '_cell_length_a ' + str(a) + '\n'
-    #              '_cell_length_b ' + str(b) + '\n'
-    #              '_cell_length_c ' + str(c) + '\n'
-    #              '_cell_angle_alpha ' + str(alpha) + '\n'
-    #              '_cell_angle_beta ' + str(beta) + '\n'
-    #              '_cell_angle_gamma ' + str(gamma) + '\n'
-    #              '_symmetry_space_group_name_H-M \'P 1\' \n'
-    #              'loop_ \n'
-    #              '_atom_site_label \n'
-    #              '_atom_site_type_symbol \n'
-    #              '_atom_site_fract_x \n'
-    #              '_atom_site_fract_y \n'
-    #              '_atom_site_fract_z \n')
-    #    file_handle.write(header)
-    #
-    #
-    #def write_atom_positions(file_handle, atoms):
-    #    for atom in atoms:
-    #        file_handle.write(atom+'\n')
+    def write_cif(self, file_name):
+        """ 
+        fout is open file handle to write cif file 
+        pass in a value for num to append _{num} to file name
+        """
+        with open(file_name, 'w') as fout:
+            self.write_cif_header(fout)
+            self.write_atom_positions(fout)
+
+    def write_cif_header(self, file_handle):
+        header = ('data_global \n'
+                  '_audit_creation_method \'socorro2cif\' \n'
+                  '_cell_length_a ' + str(self.a) + '\n'
+                  '_cell_length_b ' + str(self.b) + '\n'
+                  '_cell_length_c ' + str(self.c) + '\n'
+                  '_cell_angle_alpha ' + str(self.alpha) + '\n'
+                  '_cell_angle_beta ' + str(self.beta) + '\n'
+                  '_cell_angle_gamma ' + str(self.gamma) + '\n'
+                  '_symmetry_space_group_name_H-M \'P 1\' \n'
+                  'loop_ \n'
+                  '_atom_site_label \n'
+                  '_atom_site_type_symbol \n'
+                  '_atom_site_fract_x \n'
+                  '_atom_site_fract_y \n'
+                  '_atom_site_fract_z \n')
+        file_handle.write(header)
+    
+    def write_atom_positions(self, file_handle):
+        for atom in self.atoms:
+            file_handle.write(atom+'\n')
 
 
 if __name__=='__main__':
