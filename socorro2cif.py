@@ -1,17 +1,55 @@
 #!/bin/env python
 import numpy as np
+import os
 
 
 def main():
+    """
+    Converts crystal file to crystal_0.cif.
+    Then, converts single new_crystal file to multiple cifs, 
+    if new_crystal exists
+    """
     # convert crystal file to cif
     with open('crystal') as fin:
         crystal_text_0 = fin.readlines()
     crystal_0 = Crystal(crystal_text_0)
     crystal_0.write_cif('crystal_0.cif')
         
-    # # convert new_crystal file to multiple cifs
-    # new_crystal_split = split_new_crystal(new_crystal_text)
+    # convert single new_crystal file to multiple cifs
+    if os.path.isfile('new_crystal'):
+        new_crystal_split = split_new_crystal()
+        for i, crystal_text_i in enumerate(new_crystal_split):
+            file_name = 'crystal_' + str(i+1) + '.cif'
+            crystal_i = Crystal(crystal_text_i)
+            crystal_i.write_cif(file_name)
     
+def split_new_crystal():
+    """ 
+    Determines number of lines per crystal block by utilizing 
+    repeated header text, the splits the new_crystal text into
+    a list of crystal blocks.
+
+    Each element of new_crystal_list is a full crystal.
+    """
+    with open('new_crystal') as fin:
+        new_crystal_text = fin.readlines()
+    num_lines = get_num_lines(new_crystal_text)
+    num_blocks = len(new_crystal_text)/num_lines
+    print num_lines, num_blocks
+    new_crystal_list = []
+    for i in range(num_blocks):
+        start_line = i*num_lines 
+        stop_line = i*num_lines + num_lines
+        new_crystal_list.append(new_crystal_text[start_line:stop_line])
+    return new_crystal_list
+    
+def get_num_lines(new_crystal_text):
+    """ determine number of lines *per block* in new_crystal file """
+    header_text = new_crystal_text[0]
+    for i, line in enumerate(new_crystal_text[1:]):
+        if line==header_text:
+            num_lines = i+1
+            return num_lines
 
 class Crystal(object):
     """
