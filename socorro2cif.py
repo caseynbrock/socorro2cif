@@ -3,6 +3,7 @@ from __future__ import print_function
 import numpy as np
 import os
 
+Bohr2Ang = 0.52917721067
 
 def main():
     """
@@ -63,10 +64,10 @@ class Crystal(object):
     crystal_text: text of a crystal in socorro format, as read by readlines()
 
     ATTRIBUTES:
-    scale: lattice vector scale
-    avec, bvec, cvec: lattice vectors specified in socorro crystal file (unscaled)
-    a, b, c: magnitude of lattice vectors (after scaling)
-    a;pha, beta, gamma: angles between lattice vectors
+    scale: lattice vector scale (Bohr)
+    avec, bvec, cvec: lattice vectors specified in socorro crystal file unscaled (Bohr)
+    a, b, c: magnitude of lattice vectors after scaling (Bohr)
+    alpha, beta, gamma: angles between lattice vectors
 
     METHODS:
     write_cif: writes crystal in cif format
@@ -124,9 +125,9 @@ class Crystal(object):
     def write_cif_header(self, file_handle):
         header = ('data_global \n'
                   '_audit_creation_method \'socorro2cif\' \n'
-                  '_cell_length_a ' + str(self.a) + '\n'
-                  '_cell_length_b ' + str(self.b) + '\n'
-                  '_cell_length_c ' + str(self.c) + '\n'
+                  '_cell_length_a ' + str(self.a*Bohr2Ang) + '\n'
+                  '_cell_length_b ' + str(self.b*Bohr2Ang) + '\n'
+                  '_cell_length_c ' + str(self.c*Bohr2Ang) + '\n'
                   '_cell_angle_alpha ' + str(self.alpha) + '\n'
                   '_cell_angle_beta ' + str(self.beta) + '\n'
                   '_cell_angle_gamma ' + str(self.gamma) + '\n'
