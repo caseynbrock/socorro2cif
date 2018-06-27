@@ -15,9 +15,9 @@ def main():
     with open('crystal') as fin:
         crystal_text_0 = fin.readlines()
     crystal_0 = Crystal(crystal_text_0)
-    print('Lattice vector scale: ', crystal_0.scale)
-    print('Lattice vectors (unscaled): ', crystal_0.avec, crystal_0.bvec, crystal_0.cvec)
-    print('Lattice vector lengths (scaled): ', crystal_0.a, crystal_0.b, crystal_0.c)
+    print('Lattice vector scale (Bohr): ', crystal_0.scale)
+    print('Lattice vectors unscaled: ', crystal_0.avec, crystal_0.bvec, crystal_0.cvec)
+    print('Lattice vector lengths scaled (Bohr): ', crystal_0.a, crystal_0.b, crystal_0.c)
     print('Lattice vector angles: ', crystal_0.alpha, crystal_0.beta, crystal_0.gamma)
     print('Number of atoms: ', crystal_0.num_atoms)
     crystal_0.write_cif('crystal_0.cif')
